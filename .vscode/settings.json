@@ -1,0 +1,17 @@
+{
+    "C_Cpp.errorSquiggles": "Enabled",
+    "files.associations": {
+        "*.toml": "bat",
+        "iostream": "cpp",
+        "typeinfo": "cpp",
+        "functional": "cpp",
+        "array": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "cmath": "cpp",
+        "fstream": "cpp",
+        "ostream": "cpp",
+        "new": "cpp"
+    }
+}

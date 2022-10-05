@@ -1,0 +1,5 @@
+{
+    "bufferSize":40,
+    "bufferBlock":4096,
+    "diskSize":30
+}
