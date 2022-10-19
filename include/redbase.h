@@ -51,24 +51,28 @@ const int ALL_PAGES = -1;
 //
 enum AttrType
 {
+    ALL,
     INT,
     FLOAT,
-    STRING
-};
+    STRING,
 
+};
 //
 // Comparison operators
 //
-enum Operator
+enum CompOp
 {
-    NO_OP, // num comparison
-    EQ_OP,
-    NE_OP,
-    LT_OP,
-    GT_OP,
+    NO_OP, // no comparison
+    EQ_OP, // equal
+    NE_OP, // not-equal
+    LT_OP, // less-than
+    GT_OP, // greater-than
     LE_OP,
     GE_OP // binary atomic operators
 };
+//
+// Comparison operators
+//
 
 //
 // 聚集函数
@@ -81,6 +85,14 @@ enum AggFun
     COUNT_F,
     SUM_F,
     AVG_F
+};
+
+//
+// Pin Strategy Hint
+//
+enum ClientHint
+{
+    NO_HINT // default value
 };
 #ifndef BOOLEAN
 typedef char Boolean;

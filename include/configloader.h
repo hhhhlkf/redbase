@@ -13,6 +13,7 @@ private:
     /* data */
     config *cfg;
     const Ptr path;
+
 public:
     configloader(const Ptr path) : path(path)
     {
@@ -20,6 +21,7 @@ public:
     };
     ~configloader();
     RC loadConfig();
+    config* getConfig() { return cfg; }
 };
 
 #endif // CONFIGLOADER_H

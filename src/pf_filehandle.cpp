@@ -113,7 +113,7 @@ RC PF_FileHandle::GetThisPage(PageNum pageNum, PF_PageHandle &pageHandle) const
         pageHandle.pPageData = pPageBuf;
         return (0);
     }
-    cout << "pageNum " << pageNum << " come here" << endl;
+    // cout << "pageNum " << pageNum << " come here" << endl;
     // If the page is *not* a valid one, then unpin the page
     //减去刚才getPage时加上的pinCount
     if ((rc = UnpinPage(pageNum)))
@@ -207,6 +207,8 @@ RC PF_FileHandle::DisposePage(PageNum pageNum)
     // Unpin the page
     if ((rc = UnpinPage(pageNum)))
         return (rc);
+
+    return (0);
 }
 RC PF_FileHandle::MarkDirty(PageNum pageNum) const
 {

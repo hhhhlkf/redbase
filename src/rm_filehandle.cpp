@@ -21,8 +21,8 @@ RC RM_FileHandle::InsertRec(const char *pData, int length)
         记录标识链
         反向存储的记录
     */
-    RC rc;
 
+    RC rc;
     int currPage = header.firstFree;
     // cout << header.firstFree << endl;
     if (currPage == PF_PAGE_LIST_END)
@@ -108,22 +108,46 @@ RC RM_FileHandle::InsertRec(const char *pData, int length)
         *pos = length;
     }
     memcpy(&pDa[currAddr], pData, length);
-    if (pf_Hdr->slotNum < 5)
-    {
-        for (int i = sizeof(PF_PageHdr); i < 4096; i++)
-        {
-            cout << short(pDa[i]) << " ";
-        }
-        cout << endl;
-    }
+    // if (pf_Hdr->slotNum <= 5 && currPage == 0)
+    // {
+    //     for (int i = sizeof(PF_PageHdr); i < 4096; i++)
+    //     {
+    //         cout << short(pDa[i]) << " ";
+    //     }
+    //     cout << endl;
+    // }
     strcpy(&pDa[currAddr], pData);
     pf_Hdr->slotNum++;
     pf_Hdr->freeCnt -= (sizeof(int) * 2 + length);
     pfh.UnpinPage(currPage);
-
     if ((pf_Hdr->freeCnt / 4096.0) < 0.2)
     {
         pf_Hdr->full = TRUE;
     }
+    return (0);
+}
+RC RM_FileHandle::GetRec(const RID &rid, RM_Record &rec) const
+{
+    PageNum p;
+    SlotNum s;
+    rid.GetPageNum(p);
+    rid.GetSlotNum(s);
+    if ((p < 0) || (p > header.numPages) || (s < 0))
+    {
+        return RM_BAD_RID;
+    }
+    RC rc = 0;
+    PF_PageHandle ph;
+    if ((rc = pfh.GetThisPage(p, ph)) || (rc = pfh.UnpinPage(p)))
+    {
+        return rc;
+    }
+    char *pData;
+    ph.GetData(pData);
+    PF_PageHdr *hdr = (PF_PageHdr *)pData;
+    char *pos = &pData[sizeof(PF_PageHdr) + sizeof(int) * s * 2];
+    int *slotHeader = (int *)pos;
+    int *slotLen = (int *)(pos + sizeof(int));
+    rec.Set(&pData[*slotHeader], *slotLen, rid);
     return (0);
 }

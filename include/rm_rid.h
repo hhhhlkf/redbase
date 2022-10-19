@@ -22,5 +22,13 @@ public:
     RC GetPageNum(PageNum &pageNum) const; // Return page number
     RC GetSlotNum(SlotNum &slotNum) const; // Return slot number
     RC isValidRID() const;                 // checks if it is a valid RID
+    PageNum Page() const                   // Return page number
+    {
+        return page;
+    }
+    SlotNum Slot() const // Return slot number
+    {
+        return slot;
+    }
 };
 #endif // RM_RID_H

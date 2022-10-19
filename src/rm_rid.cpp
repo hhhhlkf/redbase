@@ -20,6 +20,9 @@ RID::RID()
     page = INVALID_PAGE; // 初始化指向不可用页或slot的RID
     slot = INVALID_SLOT;
 }
+RID::~RID()
+{
+}
 RID &RID::operator=(const RID &rid)
 {
     if (this != &rid)

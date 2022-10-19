@@ -4,12 +4,15 @@
 #include "pf_manager.h"
 #include "rm_manager.h"
 #include <fstream>
-
+#include "rm_filescan.h"
 PF_Manager PF;
 RM_Manager RM(PF);
 int main(int argc, char const *argv[])
 {
     configloader loader("../config.json");
+    loader.loadConfig();
+    config *cfg = loader.getConfig();
+    PF.SetBufferSize(cfg->getBufferSize(), LRU);
     initLib *lib = new initLib();
     ifstream ifs;
     ifs.open("../src/test.txt", ios::in);
@@ -21,11 +24,13 @@ int main(int argc, char const *argv[])
     char buf[1024] = {0};
     RM_FileHandle rfh;
     RC rc;
-    if ((rc = RM.CreateFile("account.data", 24)))
+    // cout << "************CreateFile begin!************" << endl;
+    if ((rc = RM.CreateFile("account.data", cfg->getDiskSize())))
     {
         cout << "rc" << rc << endl;
         return 0;
     }
+    // cout << "************CreateFile end!************" << endl;
     if ((rc = RM.OpenFile("account.data", rfh)))
     {
         cout << "rc" << rc << endl;
@@ -33,6 +38,7 @@ int main(int argc, char const *argv[])
     };
     char *record = nullptr;
     int recordSize = 0;
+    // cout << "************InsertRec begin!************" << endl;
     while (ifs.getline(buf, sizeof(buf)))
     {
         // cout << buf << endl;
@@ -42,7 +48,39 @@ int main(int argc, char const *argv[])
             cout << "rc" << rc << endl;
         };
     }
+    // cout << "************InsertRec end!************" << endl;
     RM.CloseFile(rfh);
+    /*
+        测试读取功能
+    */
+    if ((rc = RM.OpenFile("account.data", rfh)))
+    {
+        cout << "rc" << rc << endl;
+        return 0;
+    };
+    RM_FileScan rfc;
+    rfc.OpenScan(rfh, ALL, -1, -1, NO_OP, nullptr);
+    // cout << "************GetNextRec begin!************" << endl;
+
+    for (int i = 0; i < 1000; i++)
+    {
+        RM_Record rec;
+        // 获取下一条数据
+        if ((rc = rfc.GetNextRec(rec)))
+        {
+            cout << rc << endl;
+        }
+        char *pData = nullptr;
+        int length = -1;
+        if ((rc = rec.GetData(pData, length)))
+        {
+            cout << rc << endl;
+        }
+        // 解析数据库所存数据
+        string outStr = lib->rexdata(pData, length);
+        cout << outStr << endl;
+    }
+    // cout << "************GetNextRec end!************" << endl;
     RM.DestroyFile("account.data");
     ifs.close();
     return 0;
