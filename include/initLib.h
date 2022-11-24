@@ -15,7 +15,8 @@ public:
     initLib();
     ~initLib();
     relationTable *dataLibrary;
-    char *exdata(char *record,int& size);
+    char *exdata(char *record, int &size);
+    string rexdata(char *record, int size);
 };
 
 #endif // INITLIB_H

@@ -12,14 +12,17 @@ class configloader
 private:
     /* data */
     config *cfg;
-    const Ptr path;
+    const char* path;
+
 public:
-    configloader(const Ptr path) : path(path)
+    configloader(string path)
     {
+        this->path = path.c_str();
         cfg = nullptr;
     };
     ~configloader();
     RC loadConfig();
+    config* getConfig() { return cfg; }
 };
 
 #endif // CONFIGLOADER_H
