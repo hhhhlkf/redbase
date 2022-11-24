@@ -8,9 +8,9 @@ struct RM_FileHeader
     int numRecordsPerPage; // calculated max # of recs per page
     int numPages;          // number of pages
     PageNum firstFreePage; // pointer to first free object
-    int bitmapOffset; // location in bytes of where the bitmap starts
-                      // in the page headers
-    int bitmapSize;   // size of bitmaps in the page headers
+    int bitmapOffset;      // location in bytes of where the bitmap starts
+                           // in the page headers
+    int bitmapSize;        // size of bitmaps in the page headers
 };
 #define RM_INVALIDRID (START_RM_WARN + 0)          // invalid RID
 #define RM_BADRECORDSIZE (START_RM_WARN + 1)       // record size is invalid
@@ -23,9 +23,24 @@ struct RM_FileHeader
 #define RM_ENDOFPAGE (START_RM_WARN + 8)           // end of a page
 #define RM_EOF (START_RM_WARN + 9)                 // end of file
 #define RM_BADFILENAME (START_RM_WARN + 10)
-#define RM_LASTWARN RM_BADFILENAME
 
 #define RM_ERROR (START_RM_ERR - 0) // error
 #define RM_LASTERROR RM_ERROR
 
+#define RM_BADRECSIZE (START_RM_WARN + 0) // rec size invalid <= 0
+#define RM_NORECATRID (START_RM_WARN + 1) // This rid has no record
+
+#define RM_LASTWARN RM_NORECATRID
+
+#define RM_SIZETOOBIG (START_RM_ERR - 0) // record size too big
+#define RM_PF (START_RM_ERR - 1)         // error in PF
+#define RM_NULLRECORD (START_RM_ERR - 2)
+#define RM_RECSIZEMISMATCH (START_RM_ERR - 3) // record size mismatch
+#define RM_HANDLEOPEN (START_RM_ERR - 4)
+#define RM_FCREATEFAIL (START_RM_ERR - 5)
+#define RM_FNOTOPEN (START_RM_ERR - 6)
+#define RM_BAD_RID (START_RM_ERR - 7)
+// #define RM_EOF (START_RM_ERR - 8) // end of file
+
+// #define RM_LASTERROR RM_EOF
 #endif // RM_H

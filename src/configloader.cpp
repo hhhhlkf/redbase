@@ -1,7 +1,4 @@
 #include "configloader.h"
-configloader::~configloader()
-{
-}
 
 RC configloader::loadConfig()
 {
@@ -15,4 +12,8 @@ RC configloader::loadConfig()
     //      << j["bufferBlock"] << " "
     //      << j["diskSize"] << endl;
     return 0;
+}
+
+configloader::~configloader()
+{
 }

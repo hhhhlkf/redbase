@@ -20,6 +20,9 @@ RID::RID()
     page = INVALID_PAGE; // 初始化指向不可用页或slot的RID
     slot = INVALID_SLOT;
 }
+RID::~RID()
+{
+}
 RID &RID::operator=(const RID &rid)
 {
     if (this != &rid)
@@ -39,4 +42,14 @@ RC RID::isValidRID() const
         return 0;
     else
         return RM_INVALIDRID;
+}
+
+ostream &operator<<(ostream &os, const RID &r)
+{
+    PageNum p;
+    SlotNum s;
+    r.GetPageNum(p);
+    r.GetSlotNum(s);
+    os << "[" << p << "," << s << "]";
+    return os;
 }
