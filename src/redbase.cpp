@@ -15,7 +15,6 @@ int main(int argc, char const *argv[])
     loader.loadConfig();
     config *cfg = loader.getConfig();
     PF.SetBufferSize(cfg->getBufferSize(), LRU);
-    initLib *lib = new initLib();
     ifstream ifs;
     ifs.open("../src/test.txt", ios::in);
     if (ifs.fail())

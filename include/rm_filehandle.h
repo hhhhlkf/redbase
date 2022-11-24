@@ -25,7 +25,6 @@ private:
     PF_FileHandle pfh;
     bool header_modified;
     vector<RID *> ridtable;
-
 public:
     RM_FileHandle();
     ~RM_FileHandle();
