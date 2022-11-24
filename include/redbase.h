@@ -55,6 +55,7 @@ const int ALL_PAGES = -1;
 enum AttrType
 {
     ALL,
+    ALL,
     INT,
     FLOAT,
     STRING,
@@ -76,6 +77,9 @@ enum CompOp
 //
 // Comparison operators
 //
+//
+// Comparison operators
+//
 
 //
 // 聚集函数
@@ -88,6 +92,14 @@ enum AggFun
     COUNT_F,
     SUM_F,
     AVG_F
+};
+
+//
+// Pin Strategy Hint
+//
+enum ClientHint
+{
+    NO_HINT // default value
 };
 
 //

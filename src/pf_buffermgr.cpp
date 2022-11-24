@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #define MEMORY_FD -1
-PF_BufferMgr::PF_BufferMgr(int numPages, ALGORITHM algor)
+PF_BufferMgr::PF_BufferMgr(int numPages, ALGORITHM algor, ALGORITHM algor)
 {
     this->numPages = numPages;
     pageSize = PF_PAGE_SIZE + sizeof(PF_PageHdr);
@@ -22,12 +22,26 @@ PF_BufferMgr::PF_BufferMgr(int numPages, ALGORITHM algor)
         bufTable[i].pinCount = 0;
         bufTable[i].bDirty = FALSE;
         bufTable[i].pageNum = -1;
+        bufTable[i].bDirty = FALSE;
+        bufTable[i].pageNum = -1;
     }
     bufTable[0].prev = bufTable[numPages - 1].next = INVALID_SLOT;
     //将第一个空闲缓存指向0号缓存块
     free = 0;
     //将最近使用和最不常使用的slot标识符作为
     first = last = INVALID_SLOT;
+    if (algor == LRU)
+    {
+        algorithm = new PF_Lru(first, last, free);
+    }
+    else if (algor == CLOCK)
+    {
+        algorithm = new PF_Clock(numPages);
+    }
+    else
+    {
+        cout << "error!" << endl;
+    }
     if (algor == LRU)
     {
         algorithm = new PF_Lru(first, last, free);
@@ -71,8 +85,9 @@ RC PF_BufferMgr::getPage(int fd, PageNum pageNum, char **ppBuffer,
     if ((rc = ReadPage(fd, pageNum, bufTable[slot].pData)) ||
         (rc = InitPageDesc(fd, pageNum, slot)))
     {
-        // Unlink(slot);
-        // InsertFree(slot);
+        // // Unlink(slot);
+        // // InsertFree(slot);
+        algorithm->InsertFree(slot, bufTable);
         algorithm->InsertFree(slot, bufTable);
         // cout << "read:" << pageNum << endl;
         return (rc);
@@ -109,13 +124,18 @@ RC PF_BufferMgr::AllocatePage(int fd, PageNum pageNum, char **ppBuffer)
     if ((rc = InternalAlloc(slot)))
     {
         cout << "I am here!" << endl;
+    {
+        cout << "I am here!" << endl;
         return (rc);
+    }
+
     }
 
     if ((rc = InitPageDesc(fd, pageNum, slot)))
     {
-        // Unlink(slot);
-        // InsertFree(slot);
+        // // Unlink(slot);
+        // // InsertFree(slot);
+        algorithm->InsertFree(slot, bufTable);
         algorithm->InsertFree(slot, bufTable);
         return (rc);
     }
@@ -205,6 +225,7 @@ RC PF_BufferMgr::FlushPages(int fd)
         slot = next;
     }
     return (rcWarn);
+    return (rcWarn);
 }
 RC PF_BufferMgr::ClearBuffer()
 {
@@ -216,8 +237,9 @@ RC PF_BufferMgr::ClearBuffer()
     {
         next = bufTable[slot].next;
         if (bufTable[slot].pinCount == 0)
-            // if ((rc = Unlink(slot)) ||
-            //     (rc = InsertFree(slot)))
+            // // if ((rc = Unlink(slot)) ||
+            // //     (rc = InsertFree(slot)))
+            if (rc = algorithm->InsertFree(slot, bufTable))
             if (rc = algorithm->InsertFree(slot, bufTable))
                 return (rc);
         slot = next;
@@ -277,6 +299,7 @@ RC PF_BufferMgr::Unlink(int slot)
 RC PF_BufferMgr::ForcePages(int fd, PageNum PageNum)
 {
 
+
     RC rc;
     int slot = first;
     while (slot != INVALID_SLOT)
@@ -294,6 +317,7 @@ RC PF_BufferMgr::ForcePages(int fd, PageNum PageNum)
         }
         slot = next;
     }
+    return (0);
     return (0);
 }
 RC PF_BufferMgr::ReadPage(int fd, PageNum pageNum, char *dest)
@@ -368,8 +392,9 @@ RC PF_BufferMgr::AllocateBlock(char *&buffer)
     if ((rc = InitPageDesc(MEMORY_FD, pageNum, slot)) != OK_RC)
     {
         // Put the slot back on the free list before returning the error
-        // Unlink(slot);
-        // InsertFree(slot);
+        // // Unlink(slot);
+        // // InsertFree(slot);
+        algorithm->InsertFree(slot, bufTable);
         algorithm->InsertFree(slot, bufTable);
         return rc;
     }

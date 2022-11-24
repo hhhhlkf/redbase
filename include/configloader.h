@@ -23,6 +23,7 @@ public:
     ~configloader();
     RC loadConfig();
     config* getConfig() { return cfg; }
+    config* getConfig() { return cfg; }
 };
 
 #endif // CONFIGLOADER_H

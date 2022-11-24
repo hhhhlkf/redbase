@@ -6,6 +6,7 @@
 #include <vector>
 #include "rm_rid.h"
 #include "rm_record.h"
+#include "rm_record.h"
 class RM_FileHandle
 {
     friend class RM_Manager;
@@ -25,7 +26,6 @@ private:
     PF_FileHandle pfh;
     bool header_modified;
     vector<RID *> ridtable;
-
 public:
     RM_FileHandle();
     ~RM_FileHandle();

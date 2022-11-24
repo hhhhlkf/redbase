@@ -5,7 +5,7 @@
 #include <sys/types.h>
 PF_Manager::PF_Manager()
 {
-    // pBufferMgr = new PF_BufferMgr(PF_BUFFER_SIZE);
+    // // pBufferMgr = new PF_BufferMgr(PF_BUFFER_SIZE);
 }
 PF_Manager::~PF_Manager()
 {
@@ -37,6 +37,7 @@ RC PF_Manager::CreateFile(const char *fileName, int length)
     char hdrBuf[PF_FILE_HDR_SIZE];
     memset(hdrBuf, 0, PF_FILE_HDR_SIZE);
     // 文件头初始化
+    // 文件头初始化
     PF_FileHdr *hdr = (PF_FileHdr *)hdrBuf;
     hdr->firstFree = 0;
     hdr->FreeSlotPage = -1;
@@ -56,6 +57,7 @@ RC PF_Manager::CreateFile(const char *fileName, int length)
     }
     char *pbuffer = nullptr;
     RC rc;
+    // 块初始化
     // 块初始化
     // cout << hdr->numPages << endl;
     for (long i = 0; i <= hdr->numPages - 1; i++)

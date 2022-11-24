@@ -15,6 +15,9 @@ int main(int argc, char const *argv[])
     loader.loadConfig();
     config *cfg = loader.getConfig();
     PF.SetBufferSize(cfg->getBufferSize(), LRU);
+    loader.loadConfig();
+    config *cfg = loader.getConfig();
+    PF.SetBufferSize(cfg->getBufferSize(), LRU);
     initLib *lib = new initLib();
     ifstream ifs;
     ifs.open("../src/test.txt", ios::in);
@@ -32,6 +35,7 @@ int main(int argc, char const *argv[])
         cout << "rc" << rc << endl;
         return 0;
     }
+    // cout << "************CreateFile end!************" << endl;
     // cout << "************CreateFile end!************" << endl;
     if ((rc = RM.OpenFile("account.data", rfh)))
     {

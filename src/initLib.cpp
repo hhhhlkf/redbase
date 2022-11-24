@@ -56,6 +56,7 @@ char *initLib::exdata(char *record, int &size)
         {
             //如果是varchar类型，需要取当前数据的长度
             constLength++;
+            constLength++;
             constLength += result[i].length();
             //加上存储该信息的长度空间
             constLength += sizeof(short);
@@ -113,13 +114,14 @@ char *initLib::exdata(char *record, int &size)
             *pos = atoi(result[i].c_str());
             rcd = rcd + dataLibrary->propsLink[i]->length;
 
+
             // totalLen += dataLibrary->propsLink[i]->length;
         }
         else if (type == STRING)
         {
             char *pos = rcd;
             strcpy(pos, result[i].c_str());
-            rcd = rcd + dataLibrary->propsLink[i]->length + 1;
+            rcd = rcd + dataLibrary->propsLink[i]->length + 1 + 1;
         }
         else if (type == VARCHAR)
         {
