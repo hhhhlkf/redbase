@@ -5,10 +5,15 @@
 #include <sys/types.h>
 PF_Manager::PF_Manager()
 {
-    pBufferMgr = new PF_BufferMgr(PF_BUFFER_SIZE);
+    // pBufferMgr = new PF_BufferMgr(PF_BUFFER_SIZE);
 }
 PF_Manager::~PF_Manager()
 {
+}
+RC PF_Manager::SetBufferSize(int length, ALGORITHM algor)
+{
+    pBufferMgr = new PF_BufferMgr(length, algor);
+    return (0);
 }
 RC PF_Manager::CreateFile(const char *fileName, int length)
 {
@@ -31,8 +36,10 @@ RC PF_Manager::CreateFile(const char *fileName, int length)
     // cout << "here I am" << endl;
     char hdrBuf[PF_FILE_HDR_SIZE];
     memset(hdrBuf, 0, PF_FILE_HDR_SIZE);
+    // 文件头初始化
     PF_FileHdr *hdr = (PF_FileHdr *)hdrBuf;
     hdr->firstFree = 0;
+    hdr->FreeSlotPage = -1;
     hdr->numPages = (1 << length) / 4096 - 1;
     // cout << "here I am" << endl;
     if ((numBytes = write(fd, hdrBuf, PF_FILE_HDR_SIZE)) != PF_FILE_HDR_SIZE)
@@ -49,6 +56,7 @@ RC PF_Manager::CreateFile(const char *fileName, int length)
     }
     char *pbuffer = nullptr;
     RC rc;
+    // 块初始化
     // cout << hdr->numPages << endl;
     for (long i = 0; i <= hdr->numPages - 1; i++)
     {
@@ -63,7 +71,9 @@ RC PF_Manager::CreateFile(const char *fileName, int length)
             pf_pageHdr->nextFree = PF_PAGE_LIST_END;
         pf_pageHdr->slotNum = 0;
         pf_pageHdr->freeCnt = PF_PAGE_SIZE;
-        pf_pageHdr->pageId = 0 | (fd << 24) | (i);
+        pf_pageHdr->nextSlotPage = -1;
+        pf_pageHdr->emptySlotNum = 0;
+        pf_pageHdr->PageID = i;
         // cout << "pbuffer is:";
         // for (int i = 0; i < 100; i++)
         // {

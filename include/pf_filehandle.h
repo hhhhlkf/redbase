@@ -18,6 +18,7 @@ private:
     int IsValidPageNum(PageNum pageNum) const; // OS file descriptor
 public:
     PF_FileHdr* getHdr();
+    RC setHdr(const PF_FileHdr& header);
     RC FlushPages() const;
     PF_FileHandle(const PF_FileHandle &fileHandle);
     PF_FileHandle &operator=(const PF_FileHandle &fileHandle);

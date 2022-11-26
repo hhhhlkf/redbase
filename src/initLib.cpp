@@ -3,14 +3,23 @@
 #include "initLib.h"
 initLib::initLib()
 {
-    dataLibrary = new relationTable(0, "account", "root", 3, 100);
-    propertyTable *propslib = new propertyTable("id", 4, "int", "notnull");
+    dataLibrary = new relationTable(0, "account", "root", 3, 1000);
+    propertyTable *propslib = new propertyTable("id", 4, INT, "notnull");
     dataLibrary->propsLink.push_back(propslib);
-    propslib = new propertyTable("name", 10, "varchar", "notnull");
+    propslib = new propertyTable("name", 10, VARCHAR, "notnull");
     dataLibrary->propsLink.push_back(propslib);
-    propslib = new propertyTable("money", 4, "int", "notnull");
+    propslib = new propertyTable("money", 4, INT, "notnull");
     dataLibrary->propsLink.push_back(propslib);
 }
+initLib::~initLib()
+{
+}
+/*
+    record大致组成:
+    ————————————————————————————————————————————————————————————————————————————————————————————————
+   | 状态位(1) | 整条记录长度(4) | 位图(nullMapNum) | 属性值(int,char) | 属性值长度(2)+属性值(varchar) |
+   —————————————————————————————————————————————————————————————————————————————————————————————————
+*/
 char *initLib::exdata(char *record, int &size)
 {
 
@@ -34,11 +43,19 @@ char *initLib::exdata(char *record, int &size)
     //通过属性值进行遍历
     for (int i = 0; i < result.size(); i++)
     {
-        if (dataLibrary->propsLink[i]->typeName != "varchar")
+        if (dataLibrary->propsLink[i]->typeName == INT)
+        {
             constLength += dataLibrary->propsLink[i]->length;
+        }
+        else if (dataLibrary->propsLink[i]->typeName == STRING)
+        {
+            constLength++;
+            constLength += dataLibrary->propsLink[i]->length;
+        }
         else
         {
             //如果是varchar类型，需要取当前数据的长度
+            constLength++;
             constLength += result[i].length();
             //加上存储该信息的长度空间
             constLength += sizeof(short);
@@ -46,9 +63,9 @@ char *initLib::exdata(char *record, int &size)
         if (result[i] == "null")
         {
             // 求出null信息所在的反向块编号
-            int posBlock = (int)ceil(i / 8);
+            int posBlock = (int)ceil((i + 1) / 8.0);
             // 求出正向块编号
-            char *pos = &numMap[sizeof(nullMapNum - posBlock)];
+            char *pos = &numMap[nullMapNum - posBlock];
             // 求出准确的判断位
             *pos = *pos | (1 << (i % 8));
         }
@@ -72,7 +89,7 @@ char *initLib::exdata(char *record, int &size)
 
     rcd += sizeof(int);
     // 拷贝numMap的取值，并将地址加上numMap的偏移量
-    strcpy(rcd, numMap);
+    memcpy(rcd, numMap, nullMapNum);
     // cout << "sizeof(numMap):" << sizeof(numMap) << endl;
     rcd += sizeof(char) * nullMapNum;
 
@@ -80,14 +97,14 @@ char *initLib::exdata(char *record, int &size)
     for (int i = 0; i < result.size(); i++)
     {
         // 确定类型
-        string type = dataLibrary->propsLink[i]->typeName;
+        AttrType type = dataLibrary->propsLink[i]->typeName;
         // cout << "result:" << result[i] << endl;
         if (result[i] == "null")
         {
             // 修改null的值
             result[i] = "";
         }
-        if (type == "int")
+        if (type == INT)
         {
             int *pos = (int *)rcd;
             // 强转换成int类型
@@ -95,15 +112,16 @@ char *initLib::exdata(char *record, int &size)
             // cout << "a:" << a << endl;
             *pos = atoi(result[i].c_str());
             rcd = rcd + dataLibrary->propsLink[i]->length;
+
             // totalLen += dataLibrary->propsLink[i]->length;
         }
-        else if (type == "char")
+        else if (type == STRING)
         {
             char *pos = rcd;
             strcpy(pos, result[i].c_str());
-            rcd = rcd + dataLibrary->propsLink[i]->length;
+            rcd = rcd + dataLibrary->propsLink[i]->length + 1;
         }
-        else if (type == "varchar")
+        else if (type == VARCHAR)
         {
             // 需要预存长度空间
             short *posmark = (short *)rcd;
@@ -111,7 +129,7 @@ char *initLib::exdata(char *record, int &size)
             rcd += sizeof(short);
             char *pos = rcd;
             strcpy(pos, result[i].c_str());
-            rcd += result[i].length();
+            rcd = rcd + result[i].length() + 1;
         }
         // strcpy(type, dataLibrary->propsLink[i]->typeName);
     }
@@ -136,4 +154,62 @@ vector<string> initLib::split(string str, string pattern)
         }
     }
     return result;
+}
+/*
+    record大致组成:
+    ————————————————————————————————————————————————————————————————————————————————————————————————
+   | 状态位(1) | 整条记录长度(4) | 位图(nullMapNum) | 属性值(int,char) | 属性值长度(2)+属性值(varchar) |
+   —————————————————————————————————————————————————————————————————————————————————————————————————
+*/
+string initLib::rexdata(char *record, int size)
+{
+    //规定输出格式
+    string rs;
+    //求出位图的长度
+    int nullMapNum = (int)ceil(dataLibrary->propsLink.size() / 8.0);
+    //求出第一个属性值的开头首地址
+    char *pos = &record[5 + nullMapNum];
+    for (int i = 0; i < dataLibrary->propsLink.size(); i++)
+    {
+        // 求出当前属性所在位图的反序编号
+        int posBlock = (int)ceil((i + 1) / 8.0);
+        // 求出当前属性所在位图的正向编号
+        char *bitPos = &record[(nullMapNum - posBlock) + 5];
+        // cout << u_short(*bitPos) << endl;
+        // 提取出当前位置空状态
+        bool flag = (1 & ((*bitPos) >> (i % 8)));
+        //如果不为空
+        if (!flag)
+        {
+            //却定类型
+            AttrType type = dataLibrary->propsLink[i]->typeName;
+            //确定长度
+            int attrSize = dataLibrary->propsLink[i]->length;
+            //将"字符" + ","拼接到 rs 上
+            if (type == INT)
+            {
+                int *ans = (int *)pos;
+                rs = rs + to_string(*ans) + ",";
+                pos += sizeof(int);
+            }
+            else if (type == STRING)
+            {
+                rs = rs + string(pos) + ",";
+                pos += (attrSize + 1);
+            }
+            else
+            {
+                short *len = (short *)pos;
+                pos += sizeof(short);
+                rs = rs + string(pos) + ",";
+                pos += (*len + 1);
+            }
+        }
+        //如果为空
+        else
+        {
+            rs = rs + "null,";
+        }
+    }
+    return rs.substr(0, rs.length() - 1);
 }

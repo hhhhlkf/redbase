@@ -16,6 +16,9 @@ public:
           bufferBlock(bufferBlock){
 
           };
+    int getBufferSize() { return bufferSize; }
+    int getDiskSize() { return diskSize; }
+    int getBufferBlock() { return bufferBlock; }
     ~config();
 };
 #endif // CONFIG_H

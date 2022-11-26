@@ -3,6 +3,7 @@
 #include "redbase.h"
 #include "pf.h"
 #include "pf_internal.h"
+#include "pf_algomgr.h"
 #include <iostream>
 const int INVALID_SLOT = -1;
 struct PF_BufPageDesc
@@ -17,12 +18,18 @@ struct PF_BufPageDesc
     int pinCount;    // pin count
 };
 
+enum ALGORITHM
+{
+    LRU,
+    CLOCK
+};
+class PF_AlgoMgr;
 class PF_BufferMgr
 {
 private:
     /* data */
 public:
-    PF_BufferMgr(int numPages);
+    PF_BufferMgr(int numPages, ALGORITHM algor);
     ~PF_BufferMgr();
     RC getPage(int fd, PageNum pageNum, char **ppBuffer,
                int bMultiplePins = TRUE);
@@ -54,6 +61,7 @@ private:
     int first;
     int last;
     int free;
+    PF_AlgoMgr *algorithm;
 };
 
 #endif // PF_BUFFERMGR_H
