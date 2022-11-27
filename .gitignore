@@ -4,3 +4,4 @@ build/
 /*.depend
 bin/
 lib/
+.vscode
