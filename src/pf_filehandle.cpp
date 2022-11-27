@@ -113,7 +113,7 @@ RC PF_FileHandle::GetThisPage(PageNum pageNum, PF_PageHandle &pageHandle) const
         pageHandle.pPageData = pPageBuf;
         return (0);
     }
-    cout << "pageNum " << pageNum << " come here" << endl;
+    // cout << "pageNum " << pageNum << " come here" << endl;
     // If the page is *not* a valid one, then unpin the page
     //减去刚才getPage时加上的pinCount
     if ((rc = UnpinPage(pageNum)))
@@ -140,6 +140,7 @@ RC PF_FileHandle::AllocatePage(PF_PageHandle &pageHandle)
                                       &pPageBuf)))
             return (rc);
         // Set the first free page to the next page on the free list
+        // cout << "the number of used blocks is " << hdr.firstFree << endl;
         hdr.firstFree = ((PF_PageHdr *)pPageBuf)->nextFree;
 
         // cout << "hdr.firstFree:" << hdr.firstFree << endl;
@@ -207,6 +208,8 @@ RC PF_FileHandle::DisposePage(PageNum pageNum)
     // Unpin the page
     if ((rc = UnpinPage(pageNum)))
         return (rc);
+
+    return (0);
 }
 RC PF_FileHandle::MarkDirty(PageNum pageNum) const
 {
@@ -222,6 +225,7 @@ RC PF_FileHandle::UnpinPage(PageNum pageNum) const
         return (PF_CLOSEDFILE);
     if (!IsValidPageNum(pageNum))
         return (PF_INVALIDPAGE);
+    
     return (pBufferMgr->UnpinPage(unixfd, pageNum));
 }
 RC PF_FileHandle::FlushPages() const
@@ -303,5 +307,15 @@ PF_FileHdr *PF_FileHandle::getHdr()
     // cout << "Yes!" << endl;
     hdr->numPages = this->hdr.numPages;
     // cout << "Yes!" << endl;
+    hdr->FreeSlotPage = this->hdr.FreeSlotPage;
     return hdr;
+}
+
+RC PF_FileHandle::setHdr(const PF_FileHdr &header)
+{
+    // hdr.firstFree = header.firstFree;
+    hdr.FreeSlotPage = header.FreeSlotPage;
+    hdr.numPages = header.numPages;
+    bHdrChanged = true;
+    return (0);
 }

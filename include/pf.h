@@ -4,10 +4,11 @@
 typedef int PageNum;
 struct PF_FileHdr
 {
-    int firstFree; // first free page in the linked list
-    int numPages;  // # of pages in the file
+    int firstFree;    // first free page in the linked list
+    int numPages;     // # of pages in the file
+    int FreeSlotPage; // first page with linked list
 };
-const int PF_PAGE_SIZE = 4096 - sizeof(int) * 5;
+const int PF_PAGE_SIZE = 4096 - sizeof(int) * 7;
 #define PF_PAGEPINNED (START_PF_WARN + 0)   // page pinned in buffer
 #define PF_PAGENOTINBUF (START_PF_WARN + 1) // page isn't pinned in buffer
 #define PF_INVALIDPAGE (START_PF_WARN + 2)  // invalid page number

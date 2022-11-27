@@ -23,12 +23,13 @@ RC RM_Manager::CreateFile(const char *fileName, int length)
     //         return (rc);
     //     }
     // }
+    return (0);
 }
 RM_Manager::RM_Manager(PF_Manager &pfm) : pfm(pfm)
 {
 }
 RM_Manager::~RM_Manager()
-{
+{ 
 }
 RC RM_Manager::DestroyFile(const char *fileName)
 {
@@ -107,4 +108,6 @@ RC RM_Manager::CloseFile(RM_FileHandle &fileHandle)
         return (rc);
     if ((rc = CleanUpFH(fileHandle)))
         return (rc);
+
+    return (0);
 }

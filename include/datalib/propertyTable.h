@@ -8,10 +8,10 @@ private:
 public:
     string propName;
     RC length;
-    string typeName;
+    AttrType typeName;
     RC offset;
     string nullFlag;
-    propertyTable(const char *propName, RC length, const char *typeName, const char *nullFlag)
+    propertyTable(const char *propName, RC length, const AttrType typeName, const char *nullFlag)
         : propName(propName), length(length), typeName(typeName), nullFlag(nullFlag){};
     ~propertyTable();
 };
